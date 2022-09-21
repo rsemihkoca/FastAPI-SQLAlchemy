@@ -9,7 +9,7 @@ class Post(Base):
     id = Column(Integer, primary_key=True,nullable= False , index=True)
     title = Column(String, nullable= False)
     content = Column(String , nullable= False)
-    published = Column(Boolean, server_default = "True" , ullable= False) #PostgreSQL default value karar veriyor
+    published = Column(Boolean, server_default = "True" , nullable= False) #PostgreSQL default value karar veriyor
     created_at = Column(DateTime, server_default = text("now()") , nullable= False) 
 
     ##Inner joine'e de bk relationship

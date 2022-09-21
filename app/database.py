@@ -1,8 +1,9 @@
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.inspection import inspect
 
-SQLALCHEMY_DATABASE_URL = "postgresql://postgres:8520@localhost/Fast-API"
+SQLALCHEMY_DATABASE_URL = "postgresql://postgres:8520@localhost/db"
 # SQLALCHEMY_DATABASE_URL = "postgresql://user:password@postgresserver/db"
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
@@ -22,5 +23,5 @@ def get_db():
 
 def table_exists(name):
     ins = inspect(engine)
-    ret =ins.dialect.has_table(engine.connect(),name)
+    ret = ins.dialect.has_table(engine.connect(),name)
     return ret
