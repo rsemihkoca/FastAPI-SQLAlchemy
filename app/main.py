@@ -9,8 +9,10 @@ from psycopg2.extras import RealDictCursor
 import time 
 from sqlalchemy.orm import Session
 from . import models, schemas
+
 from .database import engine, get_db, table_exists
 
+#DATABASE CONNECTION yeşil kısım
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
@@ -96,3 +98,17 @@ def update_post(id: int, post: schemas.PostCreate, db: Session = Depends(get_db)
 
     return post_query.first()
 
+
+#Create a new user
+@app.post("/users",status_code = status.HTTP_201_CREATED)
+async def create_users(user: schemas.UserCreate, db: Session = Depends(get_db)):
+
+    if not table_exists("users"):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, content="Table does not exist")
+    
+    NewUser = models.User(**user.dict())
+    db.add(NewUser)
+    db.commit() 
+    db.refresh(NewUser)  ## Tekrar eden mail olurs except fırlat
+
+    return NewUser

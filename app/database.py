@@ -25,3 +25,21 @@ def table_exists(name):
     ins = inspect(engine)
     ret = ins.dialect.has_table(engine.connect(),name)
     return ret
+
+
+"""#Database connection
+while True:
+    try:
+        connection = psycopg2.connect(user = "postgres",
+                                    password = "8520",
+                                    host = 'localhost',
+                                    database= 'db',
+                                    port = '5432',
+                                    cursor_factory=RealDictCursor
+                                    )
+        cursor = connection.cursor()
+        print(f"\033[92mPostgreSQL connection is successful \033[0m")
+        break
+    except (Exception, psycopg2.Error) as error:
+        print(f"\033[91mError while connecting to PostgreSQL\n{error}\033[0m")
+        time.sleep(3)"""
