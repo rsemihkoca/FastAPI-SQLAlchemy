@@ -25,16 +25,16 @@ async def root():
 async def get_posts(db: Session = Depends(get_db)):
     ### first check if table exists
     if not table_exists("posts"):
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, content="Table does not exist")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, content="Table does not exist")  # type: ignore
     
     posts = db.query(models.Post).all()
     return posts
 
 #Create a new post
 @app.post("/posts",status_code = status.HTTP_201_CREATED, response_model = schemas.Post)
-async def create_posts(post: schemas.PostCreate = Body(...), db: Session = Depends(get_db)):
+async def create_posts(post: schemas.PostCreate = Body(...), db: Session = Depends(get_db)):  # type: ignore
     if not table_exists("posts"):
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, content="Table does not exist")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, content="Table does not exist")  # type: ignore
     
     #NewPost = models.Post(title=post.title, content=post.content, published=post.published)
     NewPost = models.Post(**post.dict())
@@ -102,7 +102,7 @@ def update_post(id: int, post: schemas.PostCreate, db: Session = Depends(get_db)
 async def create_users(user: schemas.UserCreate, db: Session = Depends(get_db)):
 
     if not table_exists("users"):
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, content="Table does not exist")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, content="Table does not exist")  # type: ignore
 
     hashed_password = utils.hash_password(user.password)
     user.password = hashed_password
