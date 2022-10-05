@@ -13,3 +13,12 @@ class Post(Base):
     created_at = Column(DateTime, server_default = text("now()") , nullable= False) 
 
     ##Inner joine'e de bk relationship
+
+class User(Base):
+    __tablename__ = "users"
+    id = Column(Integer, primary_key=True,nullable= False , index=True)
+    name = Column(String, nullable= False)
+    email = Column(String, nullable= False, unique=True) # Her kullanıcı aynı email ile bir kez kayıt olabilir
+    password = Column(String, nullable= False)
+    created_at = Column(DateTime, server_default = text("now()") , nullable= False) 
+
