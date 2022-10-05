@@ -8,11 +8,9 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 import time 
 from sqlalchemy.orm import Session
-from . import models, schemas
-
+from . import models, schemas, utils
 from .database import engine, get_db, table_exists
 
-#DATABASE CONNECTION yeşil kısım
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
@@ -100,15 +98,17 @@ def update_post(id: int, post: schemas.PostCreate, db: Session = Depends(get_db)
 
 
 #Create a new user
-@app.post("/users",status_code = status.HTTP_201_CREATED)
+@app.post("/users",status_code = status.HTTP_201_CREATED, response_model= schemas.UserOut)
 async def create_users(user: schemas.UserCreate, db: Session = Depends(get_db)):
 
     if not table_exists("users"):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, content="Table does not exist")
-    
+
+    hashed_password = utils.hash_password(user.password)
+    user.password = hashed_password
     NewUser = models.User(**user.dict())
     db.add(NewUser)
     db.commit() 
-    db.refresh(NewUser)  ## Tekrar eden mail olurs except fırlat
+    db.refresh(NewUser)  ## Posgre Duplice mail internal error nasıl exception yapılır
 
-    return NewUser
+    return NewUser  

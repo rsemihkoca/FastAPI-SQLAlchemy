@@ -13,6 +13,11 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
 
+# secret ve database.ini bak
+# postgre bağlandı yazısı
+# tekrarlayan user internal server error 'u except ile yakalamak
+
+
 #Dependency for database: Create a new session for each request and close it after the request is completed
 def get_db():
     try:
