@@ -3,16 +3,19 @@ from fastapi import FastAPI, Response, status, HTTPException, Depends, APIRouter
 from sqlalchemy.orm import Session
 from typing import List
 from fastapi.params import Body
-from .. import models, schemas
+from .. import models, schemas, oauth2
 from ..database import get_db, table_exists
 
 
 
-router = APIRouter()
+router = APIRouter(
+    prefix="/posts",   # Final'da kaldır çünkü kod okumayı zorlaştırıyor
+    tags=["Posts"]
+    )
 
 #Get all posts
-@router.get("/posts", response_model=List[schemas.Post])
-async def get_posts(db: Session = Depends(get_db)):
+@router.get("/", response_model=List[schemas.Post])
+async def get_posts(db: Session = Depends(get_db), user_id: int = Depends(oauth2.get_current_user)):
     ### first check if table exists
     if not table_exists("posts"):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, content="Table does not exist")  # type: ignore
@@ -21,8 +24,8 @@ async def get_posts(db: Session = Depends(get_db)):
     return posts
 
 #Create a new post
-@router.post("/posts",status_code = status.HTTP_201_CREATED, response_model = schemas.Post)
-async def create_posts(post: schemas.PostCreate = Body(...), db: Session = Depends(get_db)):  # type: ignore
+@router.post("/",status_code = status.HTTP_201_CREATED, response_model = schemas.Post)
+async def create_posts(post: schemas.PostCreate = Body(...), db: Session = Depends(get_db), user_id: int = Depends(oauth2.get_current_user)):  # type: ignore
     if not table_exists("posts"):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, content="Table does not exist")  # type: ignore
     
@@ -36,8 +39,8 @@ async def create_posts(post: schemas.PostCreate = Body(...), db: Session = Depen
     return NewPost
 
 #Get a single post(FIND)
-@router.get("/posts/{id}", status_code = status.HTTP_302_FOUND, response_model = schemas.Post)
-async def get_post(id: int, db: Session = Depends(get_db)):
+@router.get("/{id}", status_code = status.HTTP_302_FOUND, response_model = schemas.Post)
+async def get_post(id: int, db: Session = Depends(get_db), user_id: int = Depends(oauth2.get_current_user)):
 
     if not table_exists("posts"):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, content="Table does not exist")  # type: ignore
@@ -50,8 +53,8 @@ async def get_post(id: int, db: Session = Depends(get_db)):
     return posts
 
 #Delete Post
-@router.delete("/posts/{id}", status_code = status.HTTP_204_NO_CONTENT)
-def delete_post(id: int, db: Session = Depends(get_db)):
+@router.delete("/{id}", status_code = status.HTTP_204_NO_CONTENT)
+def delete_post(id: int, db: Session = Depends(get_db), user_id: int = Depends(oauth2.get_current_user)):
 
     if not table_exists("posts"):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, content="Table does not exist")  # type: ignore
@@ -63,12 +66,12 @@ def delete_post(id: int, db: Session = Depends(get_db)):
 
     posts.delete(synchronize_session=False)
     db.commit()
-
-    return posts
+    
+    return f"Post with id {id} is deleted"
 
 #Update Post
-@router.put("/posts/{id}", status_code = status.HTTP_202_ACCEPTED, response_model = schemas.Post)
-def update_post(id: int, post: schemas.PostCreate, db: Session = Depends(get_db)):
+@router.put("/{id}", status_code = status.HTTP_202_ACCEPTED, response_model = schemas.Post)
+def update_post(id: int, post: schemas.PostCreate, db: Session = Depends(get_db), user_id: int = Depends(oauth2.get_current_user)):
 
     if not table_exists("posts"):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, content="Table does not exist")  # type: ignore

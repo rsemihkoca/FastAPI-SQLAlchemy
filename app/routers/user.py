@@ -7,12 +7,13 @@ from ..database import get_db, table_exists
 
 
 
-
-
-router = APIRouter()
+router = APIRouter(
+    prefix="/users",   # Final'da kaldır çünkü kod okumayı zorlaştırıyor
+    tags=["Users"]
+)
 
 #Create a new user
-@router.post("/users",status_code = status.HTTP_201_CREATED, response_model= schemas.UserOut)
+@router.post("/",status_code = status.HTTP_201_CREATED, response_model= schemas.UserOut)
 async def create_users(user: schemas.UserCreate, db: Session = Depends(get_db)):
 
     if not table_exists("users"):
@@ -28,7 +29,7 @@ async def create_users(user: schemas.UserCreate, db: Session = Depends(get_db)):
     return NewUser  
 
 #Get a single user(FIND)
-@router.get("/users/{id}", status_code = status.HTTP_302_FOUND, response_model = schemas.UserOut)
+@router.get("/{id}", status_code = status.HTTP_302_FOUND, response_model = schemas.UserOut)
 async def get_user(id: int, db: Session = Depends(get_db)):
 
     if not table_exists("users"):
@@ -42,7 +43,7 @@ async def get_user(id: int, db: Session = Depends(get_db)):
     return users
 
 #Get all posts
-@router.get("/users", response_model=List[schemas.UserOut])
+@router.get("/", response_model=List[schemas.UserOut])
 async def get_users(db: Session = Depends(get_db)):
     ### first check if table exists
     if not table_exists("users"):
