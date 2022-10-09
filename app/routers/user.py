@@ -17,7 +17,7 @@ router = APIRouter(
 async def create_users(user: schemas.UserCreate, db: Session = Depends(get_db)):
 
     if not table_exists("users"):
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, content="Table does not exist")  # type: ignore
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Table does not exist")  # type: ignore
 
     hashed_password = utils.hash_password(user.password)
     user.password = hashed_password
@@ -33,7 +33,7 @@ async def create_users(user: schemas.UserCreate, db: Session = Depends(get_db)):
 async def get_user(id: int, db: Session = Depends(get_db)):
 
     if not table_exists("users"):
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, content="Table does not exist")  # type: ignore
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Table does not exist")  # type: ignore
 
     users = db.query(models.User).filter(models.User.id == id).first() # all değil first çünkü tek bir kayıt döndürüyoruz
 
@@ -47,7 +47,7 @@ async def get_user(id: int, db: Session = Depends(get_db)):
 async def get_users(db: Session = Depends(get_db)):
     ### first check if table exists
     if not table_exists("users"):
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, content="Table does not exist")  # type: ignore
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Table does not exist")  # type: ignore
     
     users = db.query(models.User).all()
     return users

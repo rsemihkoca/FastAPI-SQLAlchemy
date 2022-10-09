@@ -15,21 +15,21 @@ router = APIRouter(
 
 #Get all posts
 @router.get("/", response_model=List[schemas.Post])
-async def get_posts(db: Session = Depends(get_db), user_id: int = Depends(oauth2.get_current_user)):
+async def get_posts(db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
     ### first check if table exists
     if not table_exists("posts"):
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, content="Table does not exist")  # type: ignore
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Table does not exist")  # type: ignore
     
     posts = db.query(models.Post).all()
     return posts
 
 #Create a new post
 @router.post("/",status_code = status.HTTP_201_CREATED, response_model = schemas.Post)
-async def create_posts(post: schemas.PostCreate = Body(...), db: Session = Depends(get_db), user_id: int = Depends(oauth2.get_current_user)):  # type: ignore
+async def create_posts(post: schemas.PostCreate = Body(...), db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):  # type: ignore
     if not table_exists("posts"):
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, content="Table does not exist")  # type: ignore
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Table does not exist")  # type: ignore
     
-    #NewPost = models.Post(title=post.title, content=post.content, published=post.published)
+    #NewPost = models.Post(title=post.title, detail=post.detail, published=post.published)
     NewPost = models.Post(**post.dict())
     #connection.commit() : commit işlemi burada böyle:
     db.add(NewPost)
@@ -40,10 +40,10 @@ async def create_posts(post: schemas.PostCreate = Body(...), db: Session = Depen
 
 #Get a single post(FIND)
 @router.get("/{id}", status_code = status.HTTP_302_FOUND, response_model = schemas.Post)
-async def get_post(id: int, db: Session = Depends(get_db), user_id: int = Depends(oauth2.get_current_user)):
+async def get_post(id: int, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
 
     if not table_exists("posts"):
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, content="Table does not exist")  # type: ignore
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Table does not exist")  # type: ignore
 
     posts = db.query(models.Post).filter(models.Post.id == id).first() # all değil first çünkü tek bir kayıt döndürüyoruz
 
@@ -54,10 +54,10 @@ async def get_post(id: int, db: Session = Depends(get_db), user_id: int = Depend
 
 #Delete Post
 @router.delete("/{id}", status_code = status.HTTP_204_NO_CONTENT)
-def delete_post(id: int, db: Session = Depends(get_db), user_id: int = Depends(oauth2.get_current_user)):
+def delete_post(id: int, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
 
     if not table_exists("posts"):
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, content="Table does not exist")  # type: ignore
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Table does not exist")  # type: ignore
 
     posts = db.query(models.Post).filter(models.Post.id == id) # all değil first çünkü tek bir kayıt döndürüyoruz
 
@@ -71,10 +71,10 @@ def delete_post(id: int, db: Session = Depends(get_db), user_id: int = Depends(o
 
 #Update Post
 @router.put("/{id}", status_code = status.HTTP_202_ACCEPTED, response_model = schemas.Post)
-def update_post(id: int, post: schemas.PostCreate, db: Session = Depends(get_db), user_id: int = Depends(oauth2.get_current_user)):
+def update_post(id: int, post: schemas.PostCreate, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
 
     if not table_exists("posts"):
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, content="Table does not exist")  # type: ignore
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Table does not exist")  # type: ignore
 
 
     post_query = db.query(models.Post).filter(models.Post.id == id) # all değil first çünkü tek bir kayıt döndürüyoruz
