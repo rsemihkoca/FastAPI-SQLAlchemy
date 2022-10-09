@@ -30,7 +30,7 @@ async def create_posts(post: schemas.PostCreate = Body(...), db: Session = Depen
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Table does not exist")  # type: ignore
     
     #NewPost = models.Post(title=post.title, detail=post.detail, published=post.published)
-    NewPost = models.Post(**post.dict())
+    NewPost = models.Post(owner_id = current_user.id, **post.dict()) 
     #connection.commit() : commit işlemi burada böyle:
     db.add(NewPost)
     db.commit() 
@@ -59,12 +59,17 @@ def delete_post(id: int, db: Session = Depends(get_db), current_user: int = Depe
     if not table_exists("posts"):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Table does not exist")  # type: ignore
 
-    posts = db.query(models.Post).filter(models.Post.id == id) # all değil first çünkü tek bir kayıt döndürüyoruz
+    posts_query = db.query(models.Post).filter(models.Post.id == id) # all değil first çünkü tek bir kayıt döndürüyoruz
 
-    if not posts.first():
+    post = posts_query.first()
+
+    if not post:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Post with id {id} not found")
+    
+    if post.owner_id != current_user.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f"You are not the owner of this post")
 
-    posts.delete(synchronize_session=False)
+    posts_query.delete(synchronize_session=False)
     db.commit()
     
     return f"Post with id {id} is deleted"
@@ -84,7 +89,10 @@ def update_post(id: int, post: schemas.PostCreate, db: Session = Depends(get_db)
     if not posts:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Post with id {id} not found")
 
+    if posts.owner_id != current_user.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f"You are not the owner of this post")
+
     post_query.update(post.dict(),synchronize_session=False)
     db.commit()
 
-    return post_query.first()
+    return posts
