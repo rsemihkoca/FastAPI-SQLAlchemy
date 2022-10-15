@@ -3,6 +3,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.inspection import inspect
 
+#SQLALCHEMY_DATABASE_URL = "postgresql://postgres:8520@localhost/db"
 SQLALCHEMY_DATABASE_URL = "postgresql://postgres:postgres@localhost/Local"
 # SQLALCHEMY_DATABASE_URL = "postgresql://user:password@postgresserver/db"
 
@@ -39,7 +40,7 @@ while True:
                                     password = "8520",
                                     host = 'localhost',
                                     database= 'db',
-                                    port = '5432',s
+                                    port = '5432',
                                     cursor_factory=RealDictCursor
                                     )
         cursor = connection.cursor()
