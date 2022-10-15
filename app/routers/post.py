@@ -1,7 +1,7 @@
 
 from fastapi import FastAPI, Response, status, HTTPException, Depends, APIRouter
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 from fastapi.params import Body
 from .. import models, schemas, oauth2
 from ..database import get_db, table_exists
@@ -15,12 +15,19 @@ router = APIRouter(
 
 #Get all posts
 @router.get("/", response_model=List[schemas.Post])
-async def get_posts(db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
-    ### first check if table exists
+async def get_posts(
+                    db: Session = Depends(get_db), 
+                    current_user: int = Depends(oauth2.get_current_user), 
+                    skip: Optional[int] = 0 , 
+                    limit: Optional[int] = 100,
+                    search: Optional[str] = ""
+                    ):
+
     if not table_exists("posts"):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Table does not exist")  # type: ignore
     
-    posts = db.query(models.Post).all()
+    posts = db.query(models.Post).filter(models.Post.title.contains(search)).offset(skip).limit(limit).all()
+
     return posts
 
 #Get All Posts of a User
