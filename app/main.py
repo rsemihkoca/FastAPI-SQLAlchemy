@@ -4,7 +4,7 @@ from . import models
 
 from .database import engine, get_db, table_exists
 from .routers import post, user, auth
-
+from .configs import settings
 
 
 models.Base.metadata.create_all(bind=engine)
