@@ -26,7 +26,7 @@ async def get_posts(
     if not database.table_exists("posts"):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Table does not exist")  # type: ignore
     
-    posts = db.query(models.Post, func.count(models.Vote.post_id).label("votes")).join(models.Vote, models.Post.id == models.Vote.post_id).group_by(models.Post.id).filter(models.Post.title.contains(search)).offset(skip).limit(limit).all()
+    posts = db.query(models.Post, func.count(models.Vote.post_id).label("votes")).join(models.Vote, models.Post.id == models.Vote.post_id, isouter = True).group_by(models.Post.id).filter(models.Post.title.contains(search)).offset(skip).limit(limit).all()
 
     return posts
 
@@ -43,7 +43,8 @@ async def get_posts_by_user(user_id: int, db: Session = Depends(database.get_db)
     #   raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You can only see your own posts") # type: ignore
         #posts = db.query(models.Post).filter(models.Post.owner_id == user_id).all()
     
-    posts = db.query(models.Post, func.count(models.Vote.post_id).label("votes")).join(models.Vote, models.Post.id == models.Vote.post_id).group_by(models.Post.id).filter(models.Post.owner_id == user_id).all()
+    
+    posts = db.query(models.Post, func.count(models.Vote.post_id).label("votes")).join(models.Vote, models.Post.id == models.Vote.post_id, isouter = True).group_by(models.Post.id).filter(models.Post.owner_id == user_id).all()
 
 
     if not posts:
@@ -74,7 +75,7 @@ async def get_post(id: int, db: Session = Depends(database.get_db), current_user
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Table does not exist")  # type: ignore
 
     # all değil first çünkü tek bir kayıt döndürüyoruz
-    posts = db.query(models.Post, func.count(models.Vote.post_id).label("votes")).join(models.Vote, models.Post.id == models.Vote.post_id).group_by(models.Post.id).filter(models.Post.id == id).first()
+    posts = db.query(models.Post, func.count(models.Vote.post_id).label("votes")).join(models.Vote, models.Post.id == models.Vote.post_id, isouter = True).group_by(models.Post.id).filter(models.Post.id == id).first()
 
     if not posts:   
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Post with id {id} not found")
